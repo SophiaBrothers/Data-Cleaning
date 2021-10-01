@@ -10,8 +10,9 @@ ROLLBACK
 commit
 
 
+select * from Employees
 
-Select * from [dbo].[Employees]
+
 
 --Problem columns are:  NAME_FIRST,   NAME_LAST,   PHONENUMBER,   VALIDITY_STARTDATE,   VALIDITY_ENDATE
 
@@ -90,6 +91,90 @@ rollback
 commit;
 go
 
+-------------------------------  CONVERT INT TO DATE  ------------------------------------------------
+
+-- must first cast as a character of length 8. then convert to date.
+
+select
+CONVERT(date, CAST(VALIDITY_STARTDATE AS char(8)))
+from Employees
+
+
+--wont work. try in design. design failed.
+
+--this works
+ALTER TABLE Employees
+alter COLUMN VALIDITY_ENDDATE char(8);
+
+ALTER TABLE Employees
+alter COLUMN VALIDITY_ENDDATE date;
+
+
+ALTER TABLE Employees
+alter COLUMN VALIDITY_STARTDATE char(8);
+
+ALTER TABLE Employees
+alter COLUMN VALIDITY_STARTDATE date;
+
+
+
 
 -------------------------------- PHONE NUMBER ---------------------------------------------------------
+
+-- Since the countries are not available for the phone number column, I am going to use the last 10 digits 
+-- to create a standard US phone format
+
+SELECT PHONENUMBER as PHONENUMBER,
+        len(PHONENUMBER) as field_length
+FROM Employees;
+
+
+
+select
+SUBSTRING(PHONENUMBER, PATINDEX('%[-.]%', PHONENUMBER+'.'), len(PHONENUMBER))
+from Employees
+
+--trying this code. Doesnt yeild exactly what I want.
+SET NOCOUNT ON
+DECLARE @Phone table (PhoneNo varchar(50))
+INSERT INTO @Phone VALUES ('630-374-0306')
+INSERT INTO @Phone VALUES ('09603 61 24 64')
+INSERT INTO @Phone VALUES ('070 8691 2288')
+INSERT INTO @Phone VALUES ('026734 4556')
+INSERT INTO @Phone VALUES ('02224135120')
+INSERT INTO @Phone VALUES ('2288340')
+INSERT INTO @Phone VALUES ('306-598-7404')
+INSERT INTO @Phone VALUES ('03.23.46.10404')
+INSERT INTO @Phone VALUES ('805-756-6064')
+INSERT INTO @Phone VALUES ('201-849-2465')
+INSERT INTO @Phone VALUES ('916-223-7055')
+INSERT INTO @Phone VALUES ('416-794-6633')
+INSERT INTO @Phone VALUES ('780-682-9921')
+INSERT INTO @Phone VALUES ('416-609-5608')
+SET NOCOUNT OFF
+
+;WITH StripedNumber AS
+(
+SELECT
+    PhoneNo,
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(PhoneNo
+           ,'(','')
+           ,')','')
+           ,'.','')
+           ,' ','')
+           ,'-','')
+           ,'+','') AS StripedNumber
+    FROM @Phone
+)
+SELECT
+    CASE
+        WHEN ISNUMERIC(StripedNumber)=1 THEN +CONVERT(varchar(50),CONVERT(bigint,StripedNumber))
+        ELSE PhoneNo  --make this ELSE NULL if you don't want to see invalid non numeric phone numbers
+    END AS PhoneNumber
+    FROM StripedNumber
 
