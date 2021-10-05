@@ -126,7 +126,24 @@ alter COLUMN VALIDITY_STARTDATE date;
 
 SELECT PHONENUMBER as PHONENUMBER,
         len(PHONENUMBER) as field_length
-FROM Employees;
+FROM Employees;                            --14 rows
+
+
+/** my format requirements:  (123)456-7890
+
+1. remove all special characters
+
+
+
+**/
+
+CREATE FUNCTION fn_CleanPhoneAndFAX(@PhoneFAX VARCHAR(40)  )   --create the function
+
+RETURNS VARCHAR(40)   -- this is what I want returned  (123) 456 7890
+
+DECLARE @phone VARCHAR(55)      ---declaring the placeholder variable
+Set @phone = '%[^0-9]%' 
+print @phone
 
 
 
@@ -134,47 +151,5 @@ select
 SUBSTRING(PHONENUMBER, PATINDEX('%[-.]%', PHONENUMBER+'.'), len(PHONENUMBER))
 from Employees
 
---trying this code. Doesnt yeild exactly what I want.
-SET NOCOUNT ON
-DECLARE @Phone table (PhoneNo varchar(50))
-INSERT INTO @Phone VALUES ('630-374-0306')
-INSERT INTO @Phone VALUES ('09603 61 24 64')
-INSERT INTO @Phone VALUES ('070 8691 2288')
-INSERT INTO @Phone VALUES ('026734 4556')
-INSERT INTO @Phone VALUES ('02224135120')
-INSERT INTO @Phone VALUES ('2288340')
-INSERT INTO @Phone VALUES ('306-598-7404')
-INSERT INTO @Phone VALUES ('03.23.46.10404')
-INSERT INTO @Phone VALUES ('805-756-6064')
-INSERT INTO @Phone VALUES ('201-849-2465')
-INSERT INTO @Phone VALUES ('916-223-7055')
-INSERT INTO @Phone VALUES ('416-794-6633')
-INSERT INTO @Phone VALUES ('780-682-9921')
-INSERT INTO @Phone VALUES ('416-609-5608')
-SET NOCOUNT OFF
 
-;WITH StripedNumber AS
-(
-SELECT
-    PhoneNo,
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(PhoneNo
-           ,'(','')
-           ,')','')
-           ,'.','')
-           ,' ','')
-           ,'-','')
-           ,'+','') AS StripedNumber
-    FROM @Phone
-)
-SELECT
-    CASE
-        WHEN ISNUMERIC(StripedNumber)=1 THEN +CONVERT(varchar(50),CONVERT(bigint,StripedNumber))
-        ELSE PhoneNo  --make this ELSE NULL if you don't want to see invalid non numeric phone numbers
-    END AS PhoneNumber
-    FROM StripedNumber
 
