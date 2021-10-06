@@ -136,14 +136,22 @@ FROM Employees;                            --14 rows
 
 
 **/
+--Create the function
+CREATE FUNCTION fn_CleanPhoneNum (@Phone VARCHAR(40)  )   --create the function
+RETURNS VARCHAR(40)   -- this is what I want returned 
+AS
+BEGIN
 
-CREATE FUNCTION fn_CleanPhoneAndFAX(@PhoneFAX VARCHAR(40)  )   --create the function
+--Place declare statement here to strip strings down to just numbers
+	DECLARE @keep VARCHAR(55)      --declaring the placeholder variable
+	Set @keep = '%[^0-9]%'         --  remove values that are NOT(^) 0-9
+	
 
-RETURNS VARCHAR(40)   -- this is what I want returned  (123) 456 7890
 
-DECLARE @phone VARCHAR(55)      ---declaring the placeholder variable
-Set @phone = '%[^0-9]%' 
-print @phone
+
+
+
+
 
 
 
