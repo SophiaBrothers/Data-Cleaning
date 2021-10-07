@@ -132,10 +132,51 @@ FROM Employees;                            --14 rows
 /** my format requirements:  (123)456-7890
 
 1. remove all special characters
+2. get the last 10, remove the excess
+
+ **/
+
+ --working with sample phone number
+ select PHONENUMBER from Employees
+ where PHONENUMBER like '03.23.46.10404';
+
+--step1
+DECLARE @dirty VARCHAR(55)= '03.23.46.10404';
+SELECT REPLACE(@dirty, '.', ''), LEN(@dirty) as length;
+
+--step2
+select trim(replace('03.23.46.10404', '.', '' )), LEN(trim(replace('03.23.46.10404', '.', '' ))) as length;
+
+
+--step3 Use subtring to remove extra digits over 10
 
 
 
-**/
+-- Sampling
+declare @cleaning varchar(20)   
+set @cleaning = trim(replace('03.23.46.10404', '.', '' ))
+
+if len(@cleaning) > 10
+	begin 
+		set @cleaning = reverse(SUBSTRING(reverse(@cleaning), 1, 10))    --works from inside function to outer function 
+		print @cleaning
+	end
+else
+	print 'phone is correct length';
+
+GO
+/** to solve selecting only the last 10 characters, I had to Reverse @cleaning, then place it into a 
+    substring that would grab the first 10 caharacters only from the starting point of 1(esentially the last digit),
+    then reverse it back to the original order **/
+
+
+
+
+
+
+
+
+
 --Create the function
 CREATE FUNCTION fn_CleanPhoneNum (@Phone VARCHAR(40)  )   --create the function
 RETURNS VARCHAR(40)   -- this is what I want returned 
