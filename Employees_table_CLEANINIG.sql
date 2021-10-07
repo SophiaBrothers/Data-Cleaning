@@ -154,7 +154,7 @@ select trim(replace('03.23.46.10404', '.', '' )), LEN(trim(replace('03.23.46.104
 
 -- Sampling
 declare @cleaning varchar(20)   
-set @cleaning = trim(replace(replace('805-756-6064', '.', '' ), '-', ''))     -- replacing '.' and '-'
+set @cleaning = trim(replace(replace('56-6064', '.', '' ), '-', ''))     -- replacing '.' and '-'
 
 if len(@cleaning) > 10
 	begin 
@@ -163,7 +163,12 @@ if len(@cleaning) > 10
 	end
 else
 	--print 'phone is correct length' 
-
+if len(@cleaning) < 10
+	begin
+		set @cleaning = ''    -- make the value null
+		print 'phone is empty or invalid'
+	end
+else
 	begin
 		set @cleaning = '(' + LEFT(@cleaning,3) + ')' + RIGHT(LEFT(@cleaning,6),3) + '-' + RIGHT(@cleaning,4)
 		print @cleaning
@@ -181,8 +186,9 @@ select right(@cleaning,10);
 
 go
 
+
 --testing next step in batch above
-SELECT'('+LEFT('8057566064',3)+')'+RIGHT(LEFT('8057566064',6),3)+'-'+RIGHT('8057566064',4)
+SELECT'('+LEFT('8057566064',3)+')'+RIGHT(LEFT('8057566064',6),3)+'-'+RIGHT('8057566064',4);
 
 
 
@@ -191,7 +197,7 @@ SELECT'('+LEFT('8057566064',3)+')'+RIGHT(LEFT('8057566064',6),3)+'-'+RIGHT('8057
 --Creating a function to clean phone numbers-----------------------------------------------------------------------
 GO
 
-CREATE FUNCTION fn_CleanPhoneNum (@Phone VARCHAR(40)  )   --create the function
+CREATE FUNCTION fn_CleanPhone (@Phone VARCHAR(40)  )   --create the function
 RETURNS VARCHAR(40)   -- this is what I want returned 
 AS
 BEGIN
