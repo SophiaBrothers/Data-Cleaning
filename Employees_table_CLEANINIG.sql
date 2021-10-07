@@ -154,7 +154,7 @@ select trim(replace('03.23.46.10404', '.', '' )), LEN(trim(replace('03.23.46.104
 
 -- Sampling
 declare @cleaning varchar(20)   
-set @cleaning = trim(replace('03.23.46.10404', '.', '' ))
+set @cleaning = trim(replace(replace('805-756-6064', '.', '' ), '-', ''))     -- replacing '.' and '-'
 
 if len(@cleaning) > 10
 	begin 
@@ -162,22 +162,35 @@ if len(@cleaning) > 10
 		print @cleaning
 	end
 else
-	print 'phone is correct length';
+	--print 'phone is correct length' 
+
+	begin
+		set @cleaning = '(' + LEFT(@cleaning,3) + ')' + RIGHT(LEFT(@cleaning,6),3) + '-' + RIGHT(@cleaning,4)
+		print @cleaning
+	end
 
 GO
 /** to solve selecting only the last 10 characters, I had to Reverse @cleaning, then place it into a 
     substring that would grab the first 10 caharacters only from the starting point of 1(esentially the last digit),
     then reverse it back to the original order **/
 
+-- A much better alternative for the issue above:  RIGHT()
+declare @cleaning varchar(20)   
+set @cleaning = trim(replace(replace('805-756-6064', '.', '' ), '-', '')) 
+select right(@cleaning,10);
+
+go
+
+--testing next step in batch above
+SELECT'('+LEFT('8057566064',3)+')'+RIGHT(LEFT('8057566064',6),3)+'-'+RIGHT('8057566064',4)
 
 
 
+'%[^0-9]%'
 
+--Creating a function to clean phone numbers-----------------------------------------------------------------------
+GO
 
-
-
-
---Create the function
 CREATE FUNCTION fn_CleanPhoneNum (@Phone VARCHAR(40)  )   --create the function
 RETURNS VARCHAR(40)   -- this is what I want returned 
 AS
@@ -198,7 +211,11 @@ BEGIN
 
 select
 SUBSTRING(PHONENUMBER, PATINDEX('%[-.]%', PHONENUMBER+'.'), len(PHONENUMBER))
-from Employees
+from Employees;
+
+
+
+
 
 
 
