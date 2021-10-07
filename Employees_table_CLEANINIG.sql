@@ -192,36 +192,59 @@ SELECT'('+LEFT('8057566064',3)+')'+RIGHT(LEFT('8057566064',6),3)+'-'+RIGHT('8057
 
 
 
-'%[^0-9]%'
+
 
 --Creating a function to clean phone numbers-----------------------------------------------------------------------
 GO
 
-CREATE FUNCTION fn_CleanPhone (@Phone VARCHAR(40)  )   --create the function
-RETURNS VARCHAR(40)   -- this is what I want returned 
+CREATE FUNCTION FN_CleanPhone(@phone VARCHAR(20))     --create the function
+RETURNS VARCHAR(20)   -- this is what will be returned 
 AS
 BEGIN
 
---Place declare statement here to strip strings down to just numbers
-	DECLARE @keep VARCHAR(55)      --declaring the placeholder variable
-	Set @keep = '%[^0-9]%'         --  remove values that are NOT(^) 0-9
+--Place declare statements here 
+	DECLARE @count int,                 --declaring a counter variable 
+			--@phoneNo varchar(20),         --declaring the variable for the phone numbers (source in create function)
+			@cleaning varchar(20)		 --declaring a variable that strips the numbers
+	set @count = 14                      --setting the counter to end at 14 (the number of rows)
+	--select @phoneNo = PHONENUMBER from Employees  --(source in create function)
+	set @cleaning = trim(replace(replace(@phone, '.', '' ), '-', '')) 
 	
 
+	WHILE @count <= 14
+	BEGIN
+		if len(@cleaning) > 10
+	begin 
+		set @cleaning = reverse(SUBSTRING(reverse(@cleaning), 1, 10))    --works from inside function to outer function 
+		--print @cleaning
+	end
+	--else
+		--print 'phone is correct length' 
+	if len(@cleaning) < 10
+		begin
+			set @cleaning = ''    -- make the value null
+			--print 'phone is empty or invalid'
+		end
+	else
+		--begin
+			set @cleaning = '(' + LEFT(@cleaning,3) + ')' + RIGHT(LEFT(@cleaning,6),3) + '-' + RIGHT(@cleaning,4);
+			--print @cleaning
+	END
+
+RETURN @phone
+
+END;
+
+-------------------------------------------  testing the function  ----------------------------------------------------
 
 
+go
 
+BEGIN TRANSACTION
 
+UPDATE Employees
+SET PHONENUMBER = dbo.FN_CleanPhone(PHONENUMBER)
 
+ROLLBACK
 
-
-
-select
-SUBSTRING(PHONENUMBER, PATINDEX('%[-.]%', PHONENUMBER+'.'), len(PHONENUMBER))
-from Employees;
-
-
-
-
-
-
-
+go
