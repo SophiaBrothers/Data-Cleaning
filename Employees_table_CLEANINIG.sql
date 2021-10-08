@@ -154,7 +154,7 @@ select trim(replace('03.23.46.10404', '.', '' )), LEN(trim(replace('03.23.46.104
 
 -- Sampling
 declare @cleaning varchar(20)   
-set @cleaning = trim(replace(replace('56-6064', '.', '' ), '-', ''))     -- replacing '.' and '-'
+set @cleaning = trim(replace(replace('630-374-0306', '.', '' ), '-', ''))     -- replacing '.' and '-'
 
 if len(@cleaning) > 10
 	begin 
